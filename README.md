@@ -185,6 +185,18 @@ $ ./denon.py mode
  DONE: <mode>
 ```
 
+Select preset 22
+```
+$ ./denon.py fm num +10 num +10 num 2
+ INFO: Serial device found </dev/ttyUSB0>
+ INFO: Send command <num +10>
+ DONE: <num +10>
+ INFO: Send command <num +10>
+ DONE: <num +10>
+ INFO: Send command <num 2>
+ DONE: <num 2>
+```
+
 ### Sound settings
 
 Increase / descrease bass level
