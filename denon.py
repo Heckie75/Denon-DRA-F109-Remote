@@ -541,7 +541,10 @@ def init_serial():
  program code, e.g. PORT = "/dev/ttyUSB0"
             """)
         exit(1)
-        
+    elif c > 1:
+        print(" INFO: Found more than one serial device. "
+              + "Force to <" + PORT + ">")
+        dev = PORT
     
     ser = serial.Serial(dev, 115200, serial.EIGHTBITS, 
                         serial.PARITY_NONE, serial.STOPBITS_ONE)
