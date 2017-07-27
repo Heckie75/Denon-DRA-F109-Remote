@@ -391,6 +391,12 @@ COMMANDS = {
              "on" : "\x03"
              }]
         },
+     "wait" : {
+         __USAGE : "wait",         
+         __DESCR : "Wait for a second before continue",
+         __STATS : ["__WAIT__"],
+         __PARAMS : [None]         
+        },            
      "macro preset" : {
          __USAGE : "macro preset <nn>",         
          __DESCR : "Changes to preset with given no"
@@ -581,12 +587,21 @@ def send_serial_commands(commands):
     try:    
         __init_serial()
         
+        n = 0
         for cmd in commands:
-            package = __build_package(cmd["binary"])
+            if n > 0:
+                time.sleep(.8)
+            n += 1               
             print(" INFO: Send command <" + cmd["rc_cmd"] + ">")
-            __send_package(package)
+            
+            if cmd["binary"] == "__WAIT__":
+                pass
+            else:
+                package = __build_package(cmd["binary"])
+                __send_package(package)
+            
             print(" DONE: <" + cmd["rc_cmd"] + ">")
-            time.sleep(.8)
+            
     finally:
         __close_serial()
 
@@ -727,7 +742,7 @@ def __build_macro_preset(macro_call):
                    "ERROR: Invalid parameters."))
     
     # build rc commands
-    rc_commands = ["fm"]
+    rc_commands = ["fm", "wait"]
     rc_commands += __number_to_rc_commands(preset)
 
     return rc_commands 
