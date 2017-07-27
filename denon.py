@@ -391,6 +391,10 @@ COMMANDS = {
              "on" : "\x03"
              }]
         },
+     "macro preset" : {
+         __USAGE : "macro preset <nn>",         
+         __DESCR : "Changes to preset with given no"
+        },
      "macro set-preset-name" : {
          __USAGE : "macro set-preset-name <name>",         
          __DESCR : "set name for presets."
@@ -612,7 +616,7 @@ def __init_serial():
         dev = PORT
     
     ser = serial.Serial(dev, 115200, serial.EIGHTBITS, 
-                        serial.PARITY_NONE, serial.STOPBITS_ONE)
+                        serial.PARITY_NONE, serial.STOPBITS_ONE, 1)
 
 def __close_serial():
     global ser
@@ -671,7 +675,10 @@ def build_macro(macro_call):
     
     macro_cmd = macro_call.pop(0)
     
-    if macro_cmd == "delete-preset":
+    if macro_cmd == "preset":
+        rc_commands = __build_macro_preset(macro_call)
+            
+    elif macro_cmd == "delete-preset":
         rc_commands = __build_macro_delete_presets(macro_call)
     
     elif macro_cmd == "set-preset-name":
@@ -703,6 +710,25 @@ def __build_macro_delete_presets(macro_call):
         rc_commands += __number_to_rc_commands(start)
         rc_commands += ["clear", "enter"]
         start += 1
+
+    return rc_commands 
+
+def __build_macro_preset(macro_call):
+    
+    # validate parameters
+    try:
+        if len(macro_call) == 0:
+            raise Exception()
+        
+        preset = int(macro_call.pop(0))
+        
+    except:
+        raise HelpException(__build_help(COMMANDS["macro preset"], True, 
+                   "ERROR: Invalid parameters."))
+    
+    # build rc commands
+    rc_commands = ["fm"]
+    rc_commands += __number_to_rc_commands(preset)
 
     return rc_commands 
 
@@ -749,6 +775,7 @@ def __build_macro_set_preset_name(macro_call):
         
     return rc_commands         
 
+
 if __name__ == "__main__":
     try:
         commands = sys.argv[1:]
@@ -758,7 +785,7 @@ if __name__ == "__main__":
         elif len(commands) == 0 or commands[0] == "help":
             print(__help())
         else:
-            if len(commands) > 0 and commands[0] == "macro":
+            if commands[0] == "macro":
                 commands = build_macro(commands[1:])
             
             binary_commands = build_binary_commands_from_rc(commands)
