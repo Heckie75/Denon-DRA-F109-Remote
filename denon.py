@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from distutils import command
 
 # 
 # MIT License
@@ -25,6 +26,10 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+class HelpException(Exception):
+    def __init__(self, message):
+        self.message = message
+
 import serial.tools.list_ports
 import sys
 import time
@@ -34,147 +39,156 @@ import re
 # PORT = "/dev/ttyUSB0"
 PORT = None 
 
+__PARSE_IDX = "#"
+__PARSE_VAL = "$"
+
+__USAGE = "usage"
+__DESCR = "descr"
+__STATS = "statics"
+__PARAMS = "params"
+__PARSER = "parser"
+
 COMMANDS = {
     "on" : {
-         "usage" : "on",
-         "descr" : "Turns denon receiver on",
-         "statics" : ["\x01\x02\x00"], 
-         "params" : [None]
+         __USAGE : "on",
+         __DESCR : "Turns denon receiver on",
+         __STATS : ["\x01\x02\x00"], 
+         __PARAMS : [None]
          },
      "off" : {
-         "usage" : "off",         
-         "descr" : "Turns denon receiver off",
-         "statics" : ["\x02\x01\x00"],
-         "params" : [None]
+         __USAGE : "off",         
+         __DESCR : "Turns denon receiver off",
+         __STATS : ["\x02\x01\x00"],
+         __PARAMS : [None]
          },
      "fm" : {
-         "usage" : "fm",
-         "descr" : "Sets input source to FM radio",
-         "statics" : ["\x10\x00\x00"],
-         "params" : [None]
+         __USAGE : "fm",
+         __DESCR : "Sets input source to FM radio",
+         __STATS : ["\x10\x00\x00"],
+         __PARAMS : [None]
          },
      "dab" : { # can't test
-         "usage" : "dab",         
-         "descr" : "Sets input source to DAB radio",
-         "statics" : ["\x12\x00\x00"],
-         "params" : [None]
+         __USAGE : "dab",         
+         __DESCR : "Sets input source to DAB radio",
+         __STATS : ["\x12\x00\x00"],
+         __PARAMS : [None]
          },
      "cd" : {
-         "usage" : "cd",         
-         "descr" : "Sets input source to CD (digital-in for CD)",
-         "statics" : ["\x13\x00\x00"],
-         "params" : [None]
+         __USAGE : "cd",         
+         __DESCR : "Sets input source to CD (digital-in for CD)",
+         __STATS : ["\x13\x00\x00"],
+         __PARAMS : [None]
          }, 
      "net" : {
-         "usage" : "net",         
-         "descr" : "Sets input source to Network (digital-in NETWORK)",
-         "statics" : ["\x14\x00\x00"],
-         "params" : [None]
+         __USAGE : "net",         
+         __DESCR : "Sets input source to Network (digital-in NETWORK)",
+         __STATS : ["\x14\x00\x00"],
+         __PARAMS : [None]
          }, 
      "analog" : {
-         "usage" : "analog <1|2>",      
-         "descr" : "Sets input source to Analog n, where n is 1 or 2",
-         "statics" : ["", "\x00\x00"],
-         "params" : [{
+         __USAGE : "analog <1|2>",      
+         __DESCR : "Sets input source to Analog n, where n is 1 or 2",
+         __STATS : ["", "\x00\x00"],
+         __PARAMS : [{
              "1" : "\x15",
              "2" : "\x16"
              }, None]
          },
      "optical" : {
-         "usage" : "optical",         
-         "descr" : "Sets input source to Digital-In optical",
-         "statics" : ["\x17\x00\x00"],
-         "params" : [None]
+         __USAGE : "optical",         
+         __DESCR : "Sets input source to Digital-In optical",
+         __STATS : ["\x17\x00\x00"],
+         __PARAMS : [None]
          },
      "mode" : {
-         "usage" : "mode",       
-         "descr" : "Toggles stereo/mono mode",
-         "statics" : ["\x28\x00\x00"],
-         "params" : [None]
+         __USAGE : "mode",       
+         __DESCR : "Toggles stereo/mono mode",
+         __STATS : ["\x28\x00\x00"],
+         __PARAMS : [None]
          },
      "play" : { # can't test
-         "usage" : "play/pause",         
-         "descr" : "Starts playback",
-         "statics" : ["\x32\x00\x00"],
-         "params" : [None]
+         __USAGE : "play",         
+         __DESCR : "Starts playback",
+         __STATS : ["\x32\x00\x00"],
+         __PARAMS : [None]
          }, 
      "pause" : { # can't test
-         "usage" : "play/pause",         
-         "descr" : "Pauses current playback",
-         "statics" : ["\x32\x00\x00"],
-         "params" : [None]
+         __USAGE : "pause",         
+         __DESCR : "Pauses current playback",
+         __STATS : ["\x32\x00\x00"],
+         __PARAMS : [None]
          },
      "stop" : { # can't test
-         "usage" : "stop",         
-         "descr" : "Stops current playback",
-         "statics" : ["\x33\x00\x00"],
-         "params" : [None]
+         __USAGE : "stop",         
+         __DESCR : "Stops current playback",
+         __STATS : ["\x33\x00\x00"],
+         __PARAMS : [None]
          },
      "vol" : {
-         "usage" : "volume <0-60>",         
-         "descr" : "Sets volume to value whish is between 0 and 60",
-         "statics" : ["\x40\x00"],
-         "params" : [range(0x3c)]
+         __USAGE : "volume <0-60>",         
+         __DESCR : "Sets volume to value whish is between 0 and 60",
+         __STATS : ["\x40\x00"],
+         __PARAMS : [range(0x3c)]
          },             
      "mute" : {
-         "usage" : "mute <on|off>",         
-         "descr" : "Mute on/off",
-         "statics" : ["\x41\x00"],
-         "params" : [{
+         __USAGE : "mute <on|off>",         
+         __DESCR : "Mute on/off",
+         __STATS : ["\x41\x00"],
+         __PARAMS : [{
              "on" : "\x01",
              "off" : "\x00"
              }]
          },             
      "sdb" : {
-         "usage" : "sdb <on|off>",         
-         "descr" : "SDB sound option on/off",
-         "statics" : ["\x42\x00\x00"],
-         "params" : [{
+         __USAGE : "sdb <on|off>",         
+         __DESCR : "SDB sound option on/off",
+         __STATS : ["\x42\x00\x00"],
+         __PARAMS : [{
              "on" : "\x00",
              "off" : "\x01"
              }]
          },             
      "bass" : {
-         "usage" : "bass <+|->",         
-         "descr" : "Increases / decreases bass level",
-         "statics" : ["\x42\x00\x01"],
-         "params" : [{
+         __USAGE : "bass <+|->",         
+         __DESCR : "Increases / decreases bass level",
+         __STATS : ["\x42\x00\x01"],
+         __PARAMS : [{
              "+" : "\x00",
              "-" : "\x01"
              }]
          },             
      "treble" : {
-         "usage" : "treble <+|->",         
-         "descr" : "Increases / decreases treble level",
-         "statics" : ["\x42\x00\x02"],
-         "params" : [{
+         __USAGE : "treble <+|->",         
+         __DESCR : "Increases / decreases treble level",
+         __STATS : ["\x42\x00\x02"],
+         __PARAMS : [{
              "+" : "\x00",
              "-" : "\x01"
              }]
          },             
      "balance" : {
-         "usage" : "balance <left|right>",         
-         "descr" : "Sets balance one step more to left or right",
-         "statics" : ["\x42\x00\x03"],
-         "params" : [{
+         __USAGE : "balance <left|right>",         
+         __DESCR : "Sets balance one step more to left or right",
+         __STATS : ["\x42\x00\x03"],
+         __PARAMS : [{
              "left" : "\x00",
              "right" : "\x01"
              }]
          },             
      "sdirect" : {
-         "usage" : "sdirect <on|off>",         
-         "descr" : "Activates/deactivates s.direct input",
-         "statics" : ["\x42\x00\x04"],
-         "params" : [{
+         __USAGE : "sdirect <on|off>",         
+         __DESCR : "Activates/deactivates s.direct input",
+         __STATS : ["\x42\x00\x04"],
+         __PARAMS : [{
              "on" : "\x00",
              "off" : "\x01"
              }]
          },             
      "dimmer" : {
-         "usage" : "dimmer <high|normal|low|off>",         
-         "descr" : "Sets brightness of display",
-         "statics" : ["\x43\x00"],
-         "params" : [{
+         __USAGE : "dimmer <high|normal|low|off>",         
+         __DESCR : "Sets brightness of display",
+         __STATS : ["\x43\x00"],
+         __PARAMS : [{
              "high" : "\x00",
              "normal" : "\x01",
              "low" : "\x02",
@@ -182,70 +196,70 @@ COMMANDS = {
              }]
          },
      "next" : { # can't test
-         "usage" : "next",         
-         "descr" : "Jump to next title",
-         "statics" : ["\x44\x00\x00"],
-         "params" : [None]
+         __USAGE : "next",         
+         __DESCR : "Jump to next title",
+         __STATS : ["\x44\x00\x00"],
+         __PARAMS : [None]
          },
-     "prev" : { # can't test
-         "usage" : "previous",         
-         "descr" : "Jump to previous title",
-         "statics" : ["\x45\x00\x00"],
-         "params" : [None]
+     "previous" : { # can't test
+         __USAGE : "previous",         
+         __DESCR : "Jump to previous title",
+         __STATS : ["\x45\x00\x00"],
+         __PARAMS : [None]
          },
      "forward" : { # can't test
-         "usage" : "forward",         
-         "descr" : "Forwards in current title",
-         "statics" : ["\x46\x00\x00"],
-         "params" : [None]
+         __USAGE : "forward",         
+         __DESCR : "Forwards in current title",
+         __STATS : ["\x46\x00\x00"],
+         __PARAMS : [None]
          },
      "rewind" : { # can't test
-         "usage" : "rewind",         
-         "descr" : "Rewinds in current title",
-         "statics" : ["\x47\x00\x00"],
-         "params" : [None]
+         __USAGE : "rewind",         
+         __DESCR : "Rewinds in current title",
+         __STATS : ["\x47\x00\x00"],
+         __PARAMS : [None]
          },
      "up" : {
-         "usage" : "up",         
-         "descr" : "Moves in current menu up",
-         "statics" : ["\x48\x00\x00"],
-         "params" : [None]
+         __USAGE : "up",         
+         __DESCR : "Moves in current menu up",
+         __STATS : ["\x48\x00\x00"],
+         __PARAMS : [None]
          },
      "down" : {
-         "usage" : "down",         
-         "descr" : "Moves in current menu down",
-         "statics" : ["\x49\x00\x00"],
-         "params" : [None]
+         __USAGE : "down",         
+         __DESCR : "Moves in current menu down",
+         __STATS : ["\x49\x00\x00"],
+         __PARAMS : [None]
          },
      "left" : {
-         "usage" : "left",         
-         "descr" : "Moves in current menu to the left",
-         "statics" : ["\x4a\x00\x00"],
-         "params" : [None]
+         __USAGE : "left",         
+         __DESCR : "Moves in current menu to the left",
+         __STATS : ["\x4a\x00\x00"],
+         __PARAMS : [None]
          },
      "right" : {
-         "usage" : "right",         
-         "descr" : "Moves in current menu to the right",
-         "statics" : ["\x4b\x00\x00"],
-         "params" : [None]
+         __USAGE : "right",         
+         __DESCR : "Moves in current menu to the right",
+         __STATS : ["\x4b\x00\x00"],
+         __PARAMS : [None]
          },
      "enter" : {
-         "usage" : "enter",         
-         "descr" : "Commit current setting by pressing enter",
-         "statics" : ["\x4c\x00\x00"],
-         "params" : [None]
+         __USAGE : "enter",         
+         __DESCR : "Commit current setting by pressing enter",
+         __STATS : ["\x4c\x00\x00"],
+         __PARAMS : [None]
          },
      "search" : {
-         "usage" : "search",         
-         "descr" : "Enter search menu",
-         "statics" : ["\x4d\x00\x00"],
-         "params" : [None]
+         __USAGE : "search",         
+         __DESCR : "Enter search menu",
+         __STATS : ["\x4d\x00\x00"],
+         __PARAMS : [None]
          },
      "num" : {
-         "usage" : "num <0-9|+10>",
-         "descr" : "Sends numeric buttom 0-9 / '+10' to receiver",
-         "statics" : ["", "\x00\x00"],
-         "params" : [{
+         __USAGE : "num <0-9|+10>",
+         __DESCR : "Sends numeric buttom 0-9 / '+10' to receiver",
+         __STATS : ["", "\x00\x00"],
+         __PARAMS : [{
              "1" : "\x4f",
              "2" : "\x50",
              "3" : "\x51",
@@ -260,103 +274,106 @@ COMMANDS = {
              }, None]
          },            
      "clear" : {
-         "usage" : "clear",         
-         "descr" : "Sends clear command",
-         "statics" : ["\x5a\x00\x00"],
-         "params" : [None]
+         __USAGE : "clear",         
+         __DESCR : "Sends clear command",
+         __STATS : ["\x5a\x00\x00"],
+         __PARAMS : [None]
          },
      "random" : { # can't test
-         "usage" : "random",         
-         "descr" : "(does not seem to work)",
-         "statics" : ["\x5c\x00\x00"],
-         "params" : [None]
+         __USAGE : "random",         
+         __DESCR : "(does not seem to work)",
+         __STATS : ["\x5c\x00\x00"],
+         __PARAMS : [None]
          },
      "repeat" : { # can't test
-         "usage" : "repeat",         
-         "descr" : "Toggles repeat option for playback",
-         "statics" : ["\x5d\x00\x00"],
-         "params" : [None]
+         __USAGE : "repeat",         
+         __DESCR : "Toggles repeat option for playback",
+         __STATS : ["\x5d\x00\x00"],
+         __PARAMS : [None]
          },
      "info" : {
-         "usage" : "info",         
-         "descr" : "Toggles display",
-         "statics" : ["\x5e\x00\x00"],
-         "params" : [None]
+         __USAGE : "info",         
+         __DESCR : "Toggles display",
+         __STATS : ["\x5e\x00\x00"],
+         __PARAMS : [None]
          },
      "cda" : {
-         "usage" : "cda",         
-         "descr" : "Sets input source to CD and selects CD",
-         "statics" : ["\x5f\x00\x00"],
-         "params" : [None]
+         __USAGE : "cda",         
+         __DESCR : "Sets input source to CD and selects CD",
+         __STATS : ["\x5f\x00\x00"],
+         __PARAMS : [None]
          },
      "usb" : {
-         "usage" : "usb",
-         "descr" : "Sets input source to CD and selects USB",
-         "statics" : ["\x60\x00\x00"],
-         "params" : [None]
+         __USAGE : "usb",
+         __DESCR : "Sets input source to CD and selects USB",
+         __STATS : ["\x60\x00\x00"],
+         __PARAMS : [None]
          },                                    
      "online" : {
-         "usage" : "online",         
-         "descr" : "Sets input source to Network "
+         __USAGE : "online",         
+         __DESCR : "Sets input source to Network "
             + "and selects online music",
-         "statics" : ["\x61\x00\x00"],
-         "params" : [None]
+         __STATS : ["\x61\x00\x00"],
+         __PARAMS : [None]
          },
      "internet" : {
-         "usage" : "internet",         
-         "descr" : "Sets input source to Network "
+         __USAGE : "internet",         
+         __DESCR : "Sets input source to Network "
             + "and selects internet radio",
-         "statics" : ["\x62\x00\x00"],
-         "params" : [None]
+         __STATS : ["\x62\x00\x00"],
+         __PARAMS : [None]
          },
      "server" : {
-         "usage" : "server",         
-         "descr" : "Sets input source to Network and selects server",
-         "statics" : ["\x63\x00\x00"],
-         "params" : [None]
+         __USAGE : "server",         
+         __DESCR : "Sets input source to Network and selects server",
+         __STATS : ["\x63\x00\x00"],
+         __PARAMS : [None]
          },
      "ipod" : {
-         "usage" : "ipod",         
-         "descr" : "Sets input source to Network and selects iPod",
-         "statics" : ["\x63\x00\x00"],
-         "params" : [None]
+         __USAGE : "ipod",         
+         __DESCR : "Sets input source to Network and selects iPod",
+         __STATS : ["\x63\x00\x00"],
+         __PARAMS : [None]
          },                                                                                                                                                                                    
      "preset" : {
-         "usage" : "preset <+|->",         
-         "descr" : "Zaps to previous / next preset",
-         "statics" : ["\x68\x30"],
-         "params" : [{
+         __USAGE : "preset <+|->",         
+         __DESCR : "Zaps to previous / next preset",
+         __STATS : ["\x68\x30"],
+         __PARAMS : [{
              "+" : "\x00",
              "-" : "\x01"             
              }]
          },
      "sleep" : {
-         "usage" : "sleep <0-255>",         
-         "descr" : "Activates sleep mode with time in minutes",
-         "statics" : ["\x6b\x00"],
-         "params" : [range(256)]
+         __USAGE : "sleep <0-255>",         
+         __DESCR : "Activates sleep mode with time in minutes",
+         __STATS : ["\x6b\x00"],
+         __PARAMS : [range(256)]
          },
      "standby" : {
-         "usage" : "standby <on|off>",         
-         "descr" : "Sets auto-standby on/off",
-         "statics" : ["\x83\x00"],
-         "params" : [{
+         __USAGE : "standby <on|off>",         
+         __DESCR : "Sets auto-standby on/off",
+         __STATS : ["\x83\x00"],
+         __PARAMS : [{
              "off" : "\x00",
              "on" : "\x01"
              }]
          },
      "set-alarm" : {
-         "usage" : "set-alarm <once|everyday> <hh:mm> <hh:mm> "
+         __USAGE : "set-alarm <once|everyday> <hh:mm> <hh:mm> "
             + "<analog1|analog2|optical|net|netusb|cd|cdusb|preset>"
             + "[<preset no.>]",         
-         "descr" : "Configures alarm clock, e.g. set-alarm once " 
+         __DESCR : "Configures alarm clock, e.g. set-alarm once " 
             + "21:17 23:45 preset24",
-         "statics" : ["", "\x00\x00", "\x00", ""],
-         "parser" : [None, 
-                     ["$", "$"], 
-                     ["$", "$"], 
-                     ["#", "#", "#", "#", "#", "#", "#", "#", "$"]],
-         "params" : [{
+         __STATS : ["", "\x00\x00", "\x00", ""],
+         __PARSER : [None, 
+                     [__PARSE_VAL, __PARSE_VAL], 
+                     [__PARSE_VAL, __PARSE_VAL], 
+                     [__PARSE_IDX, __PARSE_IDX, __PARSE_IDX, 
+                      __PARSE_IDX, __PARSE_IDX, 
+                      __PARSE_IDX, __PARSE_IDX, __PARSE_IDX, 
+                      __PARSE_VAL]],
+         __PARAMS : [{
                 "once" : "\x88",
                 "everyday" : "\x89",
              },
@@ -366,161 +383,212 @@ COMMANDS = {
              + "(optical)?(net)?(netusb)?(cd)?(cdusb)?([0-9]+)?"
         ]},
      "alarm" : {
-         "usage" : "alarm <off|on|once|everyday>",         
-         "descr" : "Activates / deactivates alarm clocks",
-         "statics" : ["\x8a\x00"],
-         "params" : [{
+         __USAGE : "alarm <off|on|once|everyday>",         
+         __DESCR : "Activates / deactivates alarm clocks",
+         __STATS : ["\x8a\x00"],
+         __PARAMS : [{
              "off" : "\x00",
              "everyday" : "\x01",
              "once" : "\x02",
              "on" : "\x03"
              }]
         },
+     "macro set-preset-name" : {
+         __USAGE : "macro set-preset-name <name>",         
+         __DESCR : "set name for presets."
+        },                                   
+     "macro delete-preset" : {
+         __USAGE : "macro delete-preset <from> [<to>]",         
+         __DESCR : "Deletes tuner presets. Note that it gets out of"
+            + " sync in case that preset is not available."
+        },                       
      "help" : {
-         "usage" : "help",         
-         "descr" : "Information about usage, commands and parameters"
+         __USAGE : "help",         
+         __DESCR : "Information about usage, commands and parameters"
         }            
     }
 
+CHAR_TABLE = [["0", " ", "^", "'", "(", ")", "*", "+", ",", "="],
+              ["1", ".", "-", "/"],
+              ["A", "B", "C", "2"],
+              ["D", "E", "F", "3"],
+              ["G", "H", "I", "4"],
+              ["J", "K", "L", "5"],
+              ["M", "N", "O", "6"],
+              ["P", "Q", "R", "S", "7"],
+              ["T", "U", "V", "8"],
+              ["W", "X", "Y", "Z", "9"]]
+
 ser = None
 
-def print_help(cmd, header = False, msg = ""):
+def __build_help(cmd, header = False, msg = ""):
+    
+    s = ""
+    
     if header == True:
-        print("Denon DRA-F109 command line remote control "
-              + "for Linux / Raspberry Pi via Serial Port, e.g. "
-              + "RS-232 / PL2303"        
-              + "\n\nUSAGE:\tdenon.py <command1> <params1> <command2> " 
-              + "<command2> ...\n")
-        print("EXAMPLE:\tSet FM radio as input source, "
-              + "select preset 24 and set volume to 12")
-        print("\t\t$ ./denon.py fm num +10 num +10 num 4 vol 12\n")
+        s = """ Denon DRA-F109 command line remote control \
+ for Linux / Raspberry Pi via Serial Port, e.g. RS-232 / PL2303
+ 
+ USAGE:   denon.py <command1> <params1> <command2> <command2> ...
+ EXAMPLE: Set FM radio as input source, select preset 24
+          and set volume to 12
+          $ ./denon.py fm num +10 num +10 num 4 vol 12
+        """        
     
     if msg != "":
-        print(msg)
+        s += "\n " + msg
 
-    print("  " + cmd["usage"].ljust(24) + "\t" + cmd["descr"])
-    if msg != "":
-        print("")
-
-def print_all_help():
+    s += "\n " + cmd[__USAGE].ljust(32) + "\t" + cmd[__DESCR]
     
+    if msg != "":
+        s += "\n"
+        
+    return s
+
+def __help():
+    
+    s = ""
     i = 0
     for cmd in sorted(COMMANDS):
-        print_help(COMMANDS[cmd], i == 0, "")
+        s += __build_help(COMMANDS[cmd], i == 0)
         i += 1
         
-    print("")
+    return s
+    
+def build_binary_commands_from_rc(rc_commands):
+    
+    binary_commands = []
+    # process multiple commands
+    while len(rc_commands) > 0:
+        rc_seq = rc_commands[0]
+        
+        # loop over tokens of command
+        raw_seq = ""
+        cmd_def = __interprete_command(rc_commands.pop(0))
+        for i in range(len(cmd_def[__STATS])):
+            
+            # static command seq
+            raw_seq += cmd_def[__STATS][i]
+            
+            # validate paramets for current command
+            cmd_param_def = cmd_def[__PARAMS][i]
+            if cmd_param_def == None:
+                # command doesn't need parameters
+                continue
+            
+            elif len(rc_commands) == 0:
+                # command requires parameters but there are none
+                raise HelpException(__build_help(cmd_def, True, 
+                                        "ERROR: Parameter is missing:"))
+            
+            # interprete given parameters 
+            rc_key = rc_commands.pop(0)
+            rc_seq += " " + rc_key
+            
+            # handle parameter of type list (range of int values)
+            if type(cmd_param_def) in (tuple, list):
+                raw_seq += __interprete_param_array(cmd_def, 
+                                                rc_key, 
+                                                cmd_param_def)
 
-def parse(matcher, instruc):
+            # handle parameter of type dict (lookup values)
+            elif type(cmd_param_def) in (tuple, dict):
+                raw_seq += __interprete_param_dict(cmd_def, 
+                                               rc_key, 
+                                               cmd_param_def)
+            
+            # handle parameter of keywords (lookedup by regexp)
+            elif type(cmd_param_def) in (tuple, str):
+                raw_seq += __interprete_param_regex(cmd_def, 
+                                                rc_key, 
+                                                cmd_param_def, 
+                                                cmd_def[__PARSER][i])
+        # collect commands     
+        binary_commands.append({
+                "binary" : raw_seq,
+                "rc_cmd" : rc_seq
+            })
+    
+    return binary_commands
+
+def __interprete_command(cli_cmd):
+    if cli_cmd not in COMMANDS:
+        raise HelpException(__help()
+                        + "\n\n ERROR: Invalid command <" 
+                        + cli_cmd + ">\n")
+    
+    return COMMANDS[cli_cmd]
+
+def __interprete_param_array(cmd_def, cli_arg, cmd_param_def):
+
+    # check if cli_arg is in list of allowed int values
+    if int(cli_arg) not in cmd_param_def:
+        raise HelpException(__build_help(cmd_def, True, 
+                   "ERROR: Value <" + cli_arg
+                   + "> is out of allowed range:"))
+    
+    # return int value of cli_arg as char
+    return chr(int(cli_arg))
+
+def __interprete_param_dict(cmd_def, cli_arg, cmd_param_def):
+    
+    # check if cli_arg is in list of allowed dict values
+    if cli_arg not in cmd_param_def:
+        raise HelpException(__build_help(cmd_def, True, "ERROR: Keyword <" 
+                   + cli_arg 
+                   + "> is not allowed here:"))
+    
+    # lookup dict value and return char sequence
+    return cmd_param_def[cli_arg]
+    
+def __interprete_param_regex(cmd_def, cli_arg, cmd_param_def, parser):
+    
+    # validate parameter by matching regular expression
+    matcher = re.search(cmd_param_def, cli_arg)
+    
+    ex = HelpException(__build_help(cmd_def, True, 
+                        "ERROR: Syntax of value <" 
+                        + cli_arg 
+                        + "> is wrong!"))
+    
+    if matcher == None:
+        raise ex
+    
+    s = __parse(matcher, parser)
+    if s == "":
+        raise ex
+        
+    return s  
+
+def __parse(matcher, instruc):
     
     s = ""
     for i in range(len(instruc)):
         m = matcher.group(i +1)
         if m == None:
             continue
-        elif instruc[i] == "$" :
+        elif instruc[i] == __PARSE_VAL :
             s += chr(int(matcher.group(i + 1)))
-        elif instruc[i] == "#":
+        elif instruc[i] == __PARSE_IDX:
             s += chr(i)
     
     return s
+
+def send_serial_commands(commands):
     
-def translate_commands(args):
-    
-    args.pop(0)
-    if len(args) == 2 and args[0] == "help" and args[1] in COMMANDS:
-        print_help(COMMANDS[args[1]])
-        exit(0)
-    elif len(args) == 0 or args[0] == "help":
-        print_all_help()
-        exit(1)
+    try:    
+        __init_serial()
         
-    denon_commands = []
-    while len(args) > 0:
-        # check cli command
-        cli_cmd = args.pop(0)
-        cli_params = ""
-        if cli_cmd not in COMMANDS:
-            print_all_help()
-            print("ERROR: Invalid command <" + cli_cmd + ">\n")
-            exit(1)
-        
-        raw_cmd = ""    
-        command = COMMANDS[cli_cmd]
-        for i in range(len(command["statics"])):
-            
-            raw_cmd += command["statics"][i]
-            
-            param = command["params"][i]
-            if param != None:
-                if len(args) == 0:
-                    print_help(command, True, 
-                               "ERROR: Parameter is missing!")
-                    exit(1)
-                cli_param = args.pop(0)
-                cli_params += " " + cli_param 
-                
-                # validate parameter value for array
-                if type(param) in (tuple, list):
-                    if int(cli_param) not in param:
-                        print_help(command, True, 
-                                   "ERROR: Parameter <" + cli_param 
-                                   + "> is not allowed here!")
-                        exit(1)
-                    else:
-                        raw_cmd += chr(int(cli_param))
+        for cmd in commands:
+            package = __build_package(cmd["binary"])
+            print(" INFO: Send command <" + cmd["rc_cmd"] + ">")
+            __send_package(package)
+            print(" DONE: <" + cmd["rc_cmd"] + ">")
+            time.sleep(.8)
+    finally:
+        __close_serial()
 
-                # validate parameter value for dictionary
-                if type(param) in (tuple, dict):
-                    if cli_param not in param:
-                        print_help(command, True, "ERROR: Parameter <" 
-                                   + cli_param 
-                                   + "> is not allowed here!")
-                        exit(1)
-                    else:
-                        raw_cmd += param[cli_param]
-
-                # validate parameter value for string/regular expression
-                if type(param) in (tuple, str):
-                    matcher = re.search(param, cli_param)
-                    if matcher == None:
-                        print_help(command, True, "ERROR: Parameter <" 
-                                   + cli_param 
-                                   + "> is not allowed here!")
-                        exit(1)
-                    else:
-                        s = parse(matcher, command["parser"][i])
-                        if s == "":
-                            print_help(command, True, 
-                                       "ERROR: Parameter <" 
-                                       + cli_param 
-                                       + "> is not allowed here!")
-                            exit(1)
-                            
-                        raw_cmd += s  
-                    
-        denon_commands.append({
-                "raw" : raw_cmd,
-                "command" : cli_cmd + cli_params
-            })
-    
-    return denon_commands
-    
-
-def send_commands(commands):
-    
-    init_serial()
-
-    for cmd in commands:
-        package = build_package(cmd["raw"])
-        print(" INFO: Send command <" + cmd["command"] + ">")
-        send_package(package)
-        print(" DONE: <" + cmd["command"] + ">")
-        time.sleep(.8)
-        
-    close_serial()
-
-def init_serial():
+def __init_serial():
     global ser
     
     dev = None
@@ -531,16 +599,15 @@ def init_serial():
         print(" INFO: Serial device found <" + p.device + ">")
     
     if dev == None:
-        print(" FATAL: No serial device found!")
-        exit(1)
+        raise HelpException(" FATAL: No serial device found!")
+    
     elif c > 1 and PORT == None:
-        print(" FATAL: Found more than one serial device")
-        print(
-            """
+        raise HelpException("""
+ FATAL: Found more than one serial device"
  Please specify serial device by setting PORT variable inside
  program code, e.g. PORT = "/dev/ttyUSB0"
             """)
-        exit(1)
+            
     elif c > 1:
         print(" INFO: Found more than one serial device. "
               + "Force to <" + PORT + ">")
@@ -549,11 +616,11 @@ def init_serial():
     ser = serial.Serial(dev, 115200, serial.EIGHTBITS, 
                         serial.PARITY_NONE, serial.STOPBITS_ONE)
 
-def close_serial():
+def __close_serial():
     global ser
     ser.close()
 
-def build_package(data):
+def __build_package(data):
     # preample
     package = "\xFF\x55"
     
@@ -577,14 +644,129 @@ def build_package(data):
     
     return package
     
-def send_package(package):
+def __send_package(package):
     global ser
     ser.sendBreak()
     time.sleep(.01625)
     ser.write(package)
     ser.flush()
 
+def __number_to_rc_commands(no):
+    
+    no = int(no)
+    
+    rc_commands = []
+    while True:
+        if no >= 10:
+            rc_commands += ["num", "+10"]
+            no -= 10
+        else:
+            rc_commands += ["num", str(no)]
+            break            
+    
+    return rc_commands
+
+def build_macro(macro_call):
+    
+    if len(macro_call) == 0:
+        raise HelpException(" ERROR: No macro name given.")
+    
+    macro_cmd = macro_call.pop(0)
+    
+    if macro_cmd == "delete-preset":
+        rc_commands = __build_macro_delete_presets(macro_call)
+    
+    elif macro_cmd == "set-preset-name":
+        rc_commands = __build_macro_set_preset_name(macro_call)
+    
+    else:
+        raise HelpException(" ERROR: Macro <" + macro_cmd + "> unknown.")
+    
+    return rc_commands
+
+def __build_macro_delete_presets(macro_call):
+    
+    # validate parameters
+    try:
+        if len(macro_call) == 0:
+            raise Exception()
+        
+        start = int(macro_call.pop(0))
+        end = start
+        if len(macro_call) > 0:
+            end = int(macro_call.pop(0))
+    except:
+        raise HelpException(__build_help(COMMANDS["macro delete-preset"], True, 
+                   "ERROR: Invalid parameters."))
+    
+    # build rc commands
+    rc_commands = ["fm"]
+    while start <= end:
+        rc_commands += __number_to_rc_commands(start)
+        rc_commands += ["clear", "enter"]
+        start += 1
+
+    return rc_commands 
+
+def __build_macro_set_preset_name(macro_call):
+    
+    # validate parameters
+    try:
+        if len(macro_call) < 2:
+            raise Exception()
+        
+        preset = int(macro_call.pop(0)) 
+        name = macro_call.pop(0) + (" " * 8)
+        name = name.upper()[:8]
+        
+    except:
+        raise HelpException(__build_help(COMMANDS["macro set-preset-name"], True, 
+                   "ERROR: Invalid parameters."))
+        
+    # build rc commands
+    rc_commands = ["fm"]
+    rc_commands += __number_to_rc_commands(preset)
+    rc_commands += ["enter", "enter"]
+
+    i = 0
+    for c in name:
+        i += 1
+        press = None
+        key = None
+        for p in range(len(CHAR_TABLE)):
+            if c in CHAR_TABLE[p]:
+                key = p
+                press = CHAR_TABLE[p].index(c) + 1
+        
+        if key == None:
+            key = 0
+            press = 2
+
+        rc_commands += ["clear"]
+        if i > 1:
+            rc_commands += ["right"]
+        rc_commands += __number_to_rc_commands(key) * press
+        rc_commands += ["right"]
+    rc_commands += ["enter"]
+        
+    return rc_commands         
+
 if __name__ == "__main__":
-    denon_commands = translate_commands(sys.argv)
-    send_commands(denon_commands)
+    try:
+        commands = sys.argv[1:]
+        
+        if len(commands) == 2 and commands[0] == "help" and commands[1] in COMMANDS:
+            print(__build_help(COMMANDS[commands[1]]))
+        elif len(commands) == 0 or commands[0] == "help":
+            print(__help())
+        else:
+            if len(commands) > 0 and commands[0] == "macro":
+                commands = build_macro(commands[1:])
+            
+            binary_commands = build_binary_commands_from_rc(commands)
+            send_serial_commands(binary_commands)
+        
+    except HelpException as e:
+        print e.message
+        exit(1)
     
