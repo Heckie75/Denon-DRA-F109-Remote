@@ -1,6 +1,4 @@
 #!/usr/bin/python
-from distutils import command
-
 # 
 # MIT License
 #
