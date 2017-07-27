@@ -13,60 +13,64 @@ I have taken all information about the Denon protocol from
 ## Usage
 ```
 $ ./denon.py 
-Denon DRA-F109 command line remote control for Linux / Raspberry Pi via Serial Port, e.g. RS-232 / PL2303
-
-USAGE:	denon.py <command1> <params1> <command2> <command2> ...
-
-EXAMPLE:	Set FM radio as input source, select preset 24 and set volume to 12
-		$ ./denon.py fm num +10 num +10 num 4 vol 12
-
-  alarm <off|on|once|everyday>	Activates / deactivates alarm clocks
-  analog <1|2>            	Sets input source to Analog n, where n is 1 or 2
-  balance <left|right>    	Sets balance one step more to left or right
-  bass <+|->              	Increases / decreases bass level
-  cd                      	Sets input source to CD (digital-in for CD)
-  cda                     	Sets input source to CD and selects CD
-  clear                   	Sends clear command
-  dab                     	Sets input source to DAB radio
-  dimmer <high|normal|low|off>	Sets brightness of display
-  down                    	Moves in current menu down
-  enter                   	Commit current setting by pressing enter
-  fm                      	Sets input source to FM radio
-  forward                 	Forwards in current title
-  info                    	Toggles display
-  internet                	Sets input source to Network and selects internet radio
-  ipod                    	Sets input source to Network and selects iPod
-  left                    	Moves in current menu to the left
-  mode                    	Toggles stereo/mono mode
-  mute <on|off>           	Mute on/off
-  net                     	Sets input source to Network (digital-in NETWORK)
-  next                    	Jump to next title
-  num <0-9|+10>           	Sends numeric buttom 0-9 / '+10' to receiver
-  off                     	Turns denon receiver off
-  on                      	Turns denon receiver on
-  online                  	Sets input source to Network and selects online music
-  optical                 	Sets input source to Digital-In optical
-  play/pause              	Pauses current playback
-  play/pause              	Starts playback
-  preset <+|->            	Zaps to previous / next preset
-  previous                	Jump to previous title
-  random                  	(does not seem to work)
-  repeat                  	Toggles repeat option for playback
-  rewind                  	Rewinds in current title
-  right                   	Moves in current menu to the right
-  sdb <on|off>            	SDB sound option on/off
-  sdirect <on|off>        	Activates/deactivates s.direct input
-  search                  	Enter search menu
-  server                  	Sets input source to Network and selects server
-  set-alarm <once|everyday> <hh:mm> <hh:mm> <analog1|analog2|optical|net|netusb|cd|cdusb|preset>[<preset no.>]	Configures alarm clock, e.g. set-alarm once 21:17 23:45 preset24
-  sleep <0-255>           	Activates sleep mode with time in minutes
-  standby <on|off>        	Sets auto-standby on/off
-  stop                    	Stops current playback
-  treble <+|->            	Increases / decreases treble level
-  up                      	Moves in current menu up
-  usb                     	Sets input source to CD and selects USB
-  volume <0-60>           	Sets volume to value whish is between 0 and 60
+ Denon DRA-F109 command line remote control  for Linux / Raspberry Pi via Serial Port, e.g. RS-232 / PL2303
  
+ USAGE:   denon.py <command1> <params1> <command2> <command2> ...
+ EXAMPLE: Set FM radio as input source, select preset 24
+          and set volume to 12
+          $ ./denon.py fm num +10 num +10 num 4 vol 12
+        
+ alarm <off|on|once|everyday>    	Activates / deactivates alarm clocks
+ analog <1|2>                    	Sets input source to Analog n, where n is 1 or 2
+ balance <left|right>            	Sets balance one step more to left or right
+ bass <+|->                      	Increases / decreases bass level
+ cd                              	Sets input source to CD (digital-in for CD)
+ cda                             	Sets input source to CD and selects CD
+ clear                           	Sends clear command
+ dab                             	Sets input source to DAB radio
+ dimmer <high|normal|low|off>    	Sets brightness of display
+ down                            	Moves in current menu down
+ enter                           	Commit current setting by pressing enter
+ fm                              	Sets input source to FM radio
+ forward                         	Forwards in current title
+ help                            	Information about usage, commands and parameters
+ info                            	Toggles display
+ internet                        	Sets input source to Network and selects internet radio
+ ipod                            	Sets input source to Network and selects iPod
+ left                            	Moves in current menu to the left
+ macro delete-preset <from> [<to>]	Deletes tuner presets. Note that it gets out of sync in case that preset is not available.
+ macro preset <nn>               	Changes to preset with given no
+ macro set-preset-name <name>    	set name for presets.
+ mode                            	Toggles stereo/mono mode
+ mute <on|off>                   	Mute on/off
+ net                             	Sets input source to Network (digital-in NETWORK)
+ next                            	Jump to next title
+ num <0-9|+10>                   	Sends numeric buttom 0-9 / '+10' to receiver
+ off                             	Turns denon receiver off
+ on                              	Turns denon receiver on
+ online                          	Sets input source to Network and selects online music
+ optical                         	Sets input source to Digital-In optical
+ pause                           	Pauses current playback
+ play                            	Starts playback
+ preset <+|->                    	Zaps to previous / next preset
+ previous                        	Jump to previous title
+ random                          	(does not seem to work)
+ repeat                          	Toggles repeat option for playback
+ rewind                          	Rewinds in current title
+ right                           	Moves in current menu to the right
+ sdb <on|off>                    	SDB sound option on/off
+ sdirect <on|off>                	Activates/deactivates s.direct input
+ search                          	Enter search menu
+ server                          	Sets input source to Network and selects server
+ set-alarm <once|everyday> <hh:mm> <hh:mm> <analog1|analog2|optical|net|netusb|cd|cdusb|preset>[<preset no.>]	Configures alarm clock, e.g. set-alarm once 21:17 23:45 preset24
+ sleep <0-255>                   	Activates sleep mode with time in minutes
+ standby <on|off>                	Sets auto-standby on/off
+ stop                            	Stops current playback
+ treble <+|->                    	Increases / decreases treble level
+ up                              	Moves in current menu up
+ usb                             	Sets input source to CD and selects USB
+ volume <0-60>                   	Sets volume to value whish is between 0 and 60
+
 ```
 
 ## Example
@@ -255,6 +259,37 @@ $ ./denon.py alarm everyday
  INFO: Send command <alarm everyday>
  DONE: <alarm everyday>
 ```
+### Macros
+At this moment there are 3 macros which translate higher level commands
+into simple remote control commands. 
+
+Selecting preset, here preset 28
+```
+$ ./denon.py macro preset 28
+ INFO: Serial device found </dev/ttyUSB0>
+ INFO: Send command <fm>
+ DONE: <fm>
+ INFO: Send command <num +10>
+ DONE: <num +10>
+ INFO: Send command <num +10>
+ DONE: <num +10>
+ INFO: Send command <num 8>
+ DONE: <num 8>
+```
+
+Deleting presets in range:
+```
+$ ./denon.py macro delete-preset 1 30
+```
+After this you run auto-seek in order to store stations from stretch. 
+
+
+You can set and overwrite RDS station name by doing this:
+```
+$ ./denon.py macro set-preset-name 19 "BBC World"
+```
+Note: Probably it also copies current preset to given preset
+
 
 ### Display and other settings
 Set display very bright and display some more information
