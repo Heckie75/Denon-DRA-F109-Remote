@@ -50,88 +50,80 @@ COMMANDS = {
     "on" : {
          __USAGE : "on",
          __DESCR : "Turns denon receiver on",
-         __STATS : ["\x01\x02\x00"], 
-         __PARAMS : [None]
+         __STATS : "\x01\x02\x00"
          },
      "off" : {
          __USAGE : "off",         
          __DESCR : "Turns denon receiver off",
-         __STATS : ["\x02\x01\x00"],
-         __PARAMS : [None]
+         __STATS : "\x02\x01\x00"
          },
      "fm" : {
          __USAGE : "fm",
          __DESCR : "Sets input source to FM radio",
-         __STATS : ["\x10\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x10\x00\x00"
          },
      "dab" : { # can't test
          __USAGE : "dab",         
          __DESCR : "Sets input source to DAB radio",
-         __STATS : ["\x12\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x12\x00\x00"
          },
      "cd" : {
          __USAGE : "cd",         
          __DESCR : "Sets input source to CD (digital-in for CD)",
-         __STATS : ["\x13\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x13\x00\x00"
          }, 
      "net" : {
          __USAGE : "net",         
          __DESCR : "Sets input source to Network (digital-in NETWORK)",
-         __STATS : ["\x14\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x14\x00\x00"
          }, 
      "analog" : {
          __USAGE : "analog <1|2>",      
          __DESCR : "Sets input source to Analog n, where n is 1 or 2",
-         __STATS : ["", "\x00\x00"],
+         __STATS : "%s\x00\x00",
          __PARAMS : [{
              "1" : "\x15",
              "2" : "\x16"
-             }, None]
+             }]
          },
      "optical" : {
          __USAGE : "optical",         
          __DESCR : "Sets input source to Digital-In optical",
-         __STATS : ["\x17\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x17\x00\x00"
          },
+            
+            
+            
      "mode" : {
          __USAGE : "mode",       
          __DESCR : "Toggles stereo/mono mode",
-         __STATS : ["\x28\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x28\x00\x00"
          },
      "play" : { # can't test
          __USAGE : "play",         
          __DESCR : "Starts playback",
-         __STATS : ["\x32\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x32\x00\x00"
          }, 
      "pause" : { # can't test
          __USAGE : "pause",         
          __DESCR : "Pauses current playback",
-         __STATS : ["\x32\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x32\x00\x00"
          },
      "stop" : { # can't test
          __USAGE : "stop",         
          __DESCR : "Stops current playback",
-         __STATS : ["\x33\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x33\x00\x00"
          },
      "vol" : {
          __USAGE : "volume <0-60>",         
          __DESCR : "Sets volume to value whish is between 0 and 60",
-         __STATS : ["\x40\x00"],
+         __STATS : "\x40\x00%s",
          __PARAMS : [range(0x3c)]
          },             
      "mute" : {
          __USAGE : "mute <on|off>",         
          __DESCR : "Mute on/off",
-         __STATS : ["\x41\x00"],
+         __STATS : "\x41\x00%s",
          __PARAMS : [{
              "on" : "\x01",
              "off" : "\x00"
@@ -140,7 +132,7 @@ COMMANDS = {
      "sdb" : {
          __USAGE : "sdb <on|off>",         
          __DESCR : "SDB sound option on/off",
-         __STATS : ["\x42\x00\x00"],
+         __STATS : "\x42\x00\x00%s",
          __PARAMS : [{
              "on" : "\x00",
              "off" : "\x01"
@@ -149,7 +141,7 @@ COMMANDS = {
      "bass" : {
          __USAGE : "bass <+|->",         
          __DESCR : "Increases / decreases bass level",
-         __STATS : ["\x42\x00\x01"],
+         __STATS : "\x42\x00\x01%s",
          __PARAMS : [{
              "+" : "\x00",
              "-" : "\x01"
@@ -158,7 +150,7 @@ COMMANDS = {
      "treble" : {
          __USAGE : "treble <+|->",         
          __DESCR : "Increases / decreases treble level",
-         __STATS : ["\x42\x00\x02"],
+         __STATS : "\x42\x00\x02%s",
          __PARAMS : [{
              "+" : "\x00",
              "-" : "\x01"
@@ -167,7 +159,7 @@ COMMANDS = {
      "balance" : {
          __USAGE : "balance <left|right>",         
          __DESCR : "Sets balance one step more to left or right",
-         __STATS : ["\x42\x00\x03"],
+         __STATS : "\x42\x00\x03%s",
          __PARAMS : [{
              "left" : "\x00",
              "right" : "\x01"
@@ -176,7 +168,7 @@ COMMANDS = {
      "sdirect" : {
          __USAGE : "sdirect <on|off>",         
          __DESCR : "Activates/deactivates s.direct input",
-         __STATS : ["\x42\x00\x04"],
+         __STATS : "\x42\x00\x04%s",
          __PARAMS : [{
              "on" : "\x00",
              "off" : "\x01"
@@ -185,7 +177,7 @@ COMMANDS = {
      "dimmer" : {
          __USAGE : "dimmer <high|normal|low|off>",         
          __DESCR : "Sets brightness of display",
-         __STATS : ["\x43\x00"],
+         __STATS : "\x43\x00%s",
          __PARAMS : [{
              "high" : "\x00",
              "normal" : "\x01",
@@ -196,67 +188,57 @@ COMMANDS = {
      "next" : { # can't test
          __USAGE : "next",         
          __DESCR : "Jump to next title",
-         __STATS : ["\x44\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x44\x00\x00"
          },
      "previous" : { # can't test
          __USAGE : "previous",         
          __DESCR : "Jump to previous title",
-         __STATS : ["\x45\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x45\x00\x00"
          },
      "forward" : { # can't test
          __USAGE : "forward",         
          __DESCR : "Forwards in current title",
-         __STATS : ["\x46\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x46\x00\x00"
          },
      "rewind" : { # can't test
          __USAGE : "rewind",         
          __DESCR : "Rewinds in current title",
-         __STATS : ["\x47\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x47\x00\x00"
          },
      "up" : {
          __USAGE : "up",         
          __DESCR : "Moves in current menu up",
-         __STATS : ["\x48\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x48\x00\x00"   
          },
      "down" : {
          __USAGE : "down",         
          __DESCR : "Moves in current menu down",
-         __STATS : ["\x49\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x49\x00\x00"
          },
      "left" : {
          __USAGE : "left",         
          __DESCR : "Moves in current menu to the left",
-         __STATS : ["\x4a\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x4a\x00\x00"
          },
      "right" : {
          __USAGE : "right",         
          __DESCR : "Moves in current menu to the right",
-         __STATS : ["\x4b\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x4b\x00\x00"
          },
      "enter" : {
          __USAGE : "enter",         
          __DESCR : "Commit current setting by pressing enter",
-         __STATS : ["\x4c\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x4c\x00\x00"
          },
      "search" : {
          __USAGE : "search",         
          __DESCR : "Enter search menu",
-         __STATS : ["\x4d\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x4d\x00\x00"
          },
      "num" : {
          __USAGE : "num <0-9|+10>",
          __DESCR : "Sends numeric buttom 0-9 / '+10' to receiver",
-         __STATS : ["", "\x00\x00"],
+         __STATS : "%s\x00\x00",
          __PARAMS : [{
              "1" : "\x4f",
              "2" : "\x50",
@@ -269,74 +251,64 @@ COMMANDS = {
              "9" : "\x57",
              "0" : "\x58",
              "+10" : "\x59"
-             }, None]
+             }]
          },            
      "clear" : {
          __USAGE : "clear",         
          __DESCR : "Sends clear command",
-         __STATS : ["\x5a\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x5a\x00\x00"
          },
      "random" : { # can't test
          __USAGE : "random",         
          __DESCR : "(does not seem to work)",
-         __STATS : ["\x5c\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x5c\x00\x00"
          },
      "repeat" : { # can't test
          __USAGE : "repeat",         
          __DESCR : "Toggles repeat option for playback",
-         __STATS : ["\x5d\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x5d\x00\x00"
          },
      "info" : {
          __USAGE : "info",         
          __DESCR : "Toggles display",
-         __STATS : ["\x5e\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x5e\x00\x00"
          },
      "cda" : {
          __USAGE : "cda",         
          __DESCR : "Sets input source to CD and selects CD",
-         __STATS : ["\x5f\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x5f\x00\x00"
          },
      "usb" : {
          __USAGE : "usb",
          __DESCR : "Sets input source to CD and selects USB",
-         __STATS : ["\x60\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x60\x00\x00"
          },                                    
      "online" : {
          __USAGE : "online",         
          __DESCR : "Sets input source to Network "
             + "and selects online music",
-         __STATS : ["\x61\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x61\x00\x00"
          },
      "internet" : {
          __USAGE : "internet",         
          __DESCR : "Sets input source to Network "
             + "and selects internet radio",
-         __STATS : ["\x62\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x62\x00\x00"
          },
      "server" : {
          __USAGE : "server",         
          __DESCR : "Sets input source to Network and selects server",
-         __STATS : ["\x63\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x63\x00\x00"
          },
      "ipod" : {
          __USAGE : "ipod",         
          __DESCR : "Sets input source to Network and selects iPod",
-         __STATS : ["\x63\x00\x00"],
-         __PARAMS : [None]
+         __STATS : "\x63\x00\x00"
          },                                                                                                                                                                                    
      "preset" : {
          __USAGE : "preset <+|->",         
          __DESCR : "Zaps to previous / next preset",
-         __STATS : ["\x68\x30"],
+         __STATS : "\x68\x30%s",
          __PARAMS : [{
              "+" : "\x00",
              "-" : "\x01"             
@@ -345,13 +317,13 @@ COMMANDS = {
      "sleep" : {
          __USAGE : "sleep <0-255>",         
          __DESCR : "Activates sleep mode with time in minutes",
-         __STATS : ["\x6b\x00"],
+         __STATS : "\x6b\x00%s",
          __PARAMS : [range(256)]
          },
      "standby" : {
          __USAGE : "standby <on|off>",         
          __DESCR : "Sets auto-standby on/off",
-         __STATS : ["\x83\x00"],
+         __STATS : "\x83\x00%s",
          __PARAMS : [{
              "off" : "\x00",
              "on" : "\x01"
@@ -363,7 +335,7 @@ COMMANDS = {
             + "[<preset no.>]",         
          __DESCR : "Configures alarm clock, e.g. set-alarm once " 
             + "21:17 23:45 preset24",
-         __STATS : ["", "\x00\x00", "\x00", ""],
+         __STATS : "%s\x00\x00%s\x00%s%s",
          __PARSER : [None, 
                      [__PARSE_VAL, __PARSE_VAL], 
                      [__PARSE_VAL, __PARSE_VAL], 
@@ -383,7 +355,7 @@ COMMANDS = {
      "alarm" : {
          __USAGE : "alarm <off|on|once|everyday>",         
          __DESCR : "Activates / deactivates alarm clocks",
-         __STATS : ["\x8a\x00"],
+         __STATS : "\x8a\x00%s",
          __PARAMS : [{
              "off" : "\x00",
              "everyday" : "\x01",
@@ -394,8 +366,7 @@ COMMANDS = {
      "wait" : {
          __USAGE : "wait",         
          __DESCR : "Wait for a second before continue",
-         __STATS : ["__WAIT__"],
-         __PARAMS : [None]         
+         __STATS : "__WAIT__"      
         },            
      "macro preset" : {
          __USAGE : "macro preset <nn>",         
@@ -466,54 +437,59 @@ def __help():
 def build_binary_commands_from_rc(rc_commands):
     
     binary_commands = []
+    
     # process multiple commands
     while len(rc_commands) > 0:
         rc_seq = rc_commands[0]
         
-        # loop over tokens of command
-        raw_seq = ""
         cmd_def = __interprete_command(rc_commands.pop(0))
-        for i in range(len(cmd_def[__STATS])):
+        
+        raw_seq = cmd_def[__STATS]
+        params = []
+        
+        if __PARAMS in cmd_def:
+            cmd_param_def = cmd_def[__PARAMS]
+        else:
+            cmd_param_def = []
+
+        i = -1
+        
+        for param_def in cmd_param_def:
             
-            # static command seq
-            raw_seq += cmd_def[__STATS][i]
+            i += 1
             
-            # validate paramets for current command
-            cmd_param_def = cmd_def[__PARAMS][i]
-            if cmd_param_def == None:
-                # command doesn't need parameters
-                continue
-            
-            elif len(rc_commands) == 0:
+            # validate parameters
+            if len(rc_commands) == 0:
                 # command requires parameters but there are none
                 raise HelpException(__build_help(cmd_def, True, 
                                         "ERROR: Parameter is missing:"))
-            
+        
             # interprete given parameters 
             rc_key = rc_commands.pop(0)
             rc_seq += " " + rc_key
             
             # handle parameter of type list (range of int values)
-            if type(cmd_param_def) in (tuple, list):
-                raw_seq += __interprete_param_array(cmd_def, 
+            if type(param_def) in (tuple, list):
+                params.append(__interprete_param_array(cmd_def, 
                                                 rc_key, 
-                                                cmd_param_def)
+                                                param_def))
 
             # handle parameter of type dict (lookup values)
-            elif type(cmd_param_def) in (tuple, dict):
-                raw_seq += __interprete_param_dict(cmd_def, 
+            elif type(param_def) in (tuple, dict):
+                params.append(__interprete_param_dict(cmd_def, 
                                                rc_key, 
-                                               cmd_param_def)
+                                               param_def))
             
             # handle parameter of keywords (lookedup by regexp)
-            elif type(cmd_param_def) in (tuple, str):
-                raw_seq += __interprete_param_regex(cmd_def, 
+            elif type(param_def) in (tuple, str):
+                params.append(__interprete_param_regex(cmd_def, 
                                                 rc_key, 
-                                                cmd_param_def, 
-                                                cmd_def[__PARSER][i])
+                                                param_def, 
+                                                cmd_def[__PARSER][i]))
+        
         # collect commands     
         binary_commands.append({
-                "binary" : raw_seq,
+                "binary" : raw_seq % tuple(params),
                 "rc_cmd" : rc_seq
             })
     
