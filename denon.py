@@ -568,7 +568,7 @@ def send_serial_commands(commands):
             print(" INFO: Send command <" + cmd["rc_cmd"] + ">")
 
             if cmd["binary"] == "__WAIT__":
-                pass
+                time.sleep(1.2)
             else:
                 package = __build_package(cmd["binary"])
                 __send_package(package)
@@ -593,7 +593,7 @@ def __init_serial():
 
     elif c > 1 and PORT == None:
         raise HelpException("""
- FATAL: Found more than one serial device"
+ FATAL: Found more than one serial device
  Please specify serial device by setting PORT variable inside
  program code, e.g. PORT = "/dev/ttyUSB0"
             """)
@@ -608,7 +608,9 @@ def __init_serial():
 
 def __close_serial():
     global ser
-    ser.close()
+	
+    if ser != None:
+	    ser.close()
 
 def __build_package(data):
     # preample
