@@ -87,7 +87,7 @@ $ sudo apt install python-serial
 ### 2. Permissions
 
 The script writes directly to serial devices which is normally _/dev/ttyUSB0_.
-You have to grant permissions by adding your current user account to group <pre>dialout</pre>
+You have to grant permissions by adding your current user account to group _dialout_
 
 ```
 sudo usermod -a -G dialout MYUSER
