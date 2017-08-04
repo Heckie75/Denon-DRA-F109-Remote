@@ -73,7 +73,27 @@ $ ./denon.py
 
 ```
 
-## Example
+## Preparation
+ 
+Before you can start to play with this script some preparation is required:
+
+### 1. PySerial 
+
+The script depends on PySerial. Install it as follows:
+```
+$ sudo apt install python-serial
+```
+
+### 2. Permissions
+
+The script writes directly to serial devices which is normally <pre>dev/ttyUSB0</pre>.
+You have to grant permissions by adding your current user account to group <pre>dialout</pre>
+
+```
+sudo usermod -a -G dialout MYUSER
+```
+
+## Examples
 
 ### Turn receiver on
 ```
