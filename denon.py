@@ -639,7 +639,6 @@ def __build_package(data):
 def __send_package(package):
     global ser
     ser.sendBreak()
-    #time.sleep(0.1625)
     ser.write(package)
     ser.flush()
 
