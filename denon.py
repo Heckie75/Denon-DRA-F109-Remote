@@ -344,14 +344,14 @@ COMMANDS = {
                 "once" : "\x88",
                 "everyday" : "\x89",
              },
-             r"([0-2][0-9]):([0-5][0-9])",
-             r"([0-2][0-9]):([0-5][0-9])",
+             r"([0-2]?[0-9]):([0-5][0-9])",
+             r"([0-2]?[0-9]):([0-5][0-9])",
              r"(preset)?(analog1)?(analog2)?"
              + "(optical)?(net)?(netusb)?(cd)?(cdusb)?([0-9]+)?"
         ]},
      "alarm" : {
          __USAGE : "alarm <off|on|once|everyday>",
-         __DESCR : "Activates / deactivates alarm clocks",
+         __DESCR : "Activates / deactivates alarm timers",
          __STATS : "\x8a\x00%s",
          __PARAMS : [{
              "off" : "\x00",
@@ -608,9 +608,9 @@ def __init_serial():
 
 def __close_serial():
     global ser
-	
+    
     if ser != None:
-	    ser.close()
+        ser.close()
 
 def __build_package(data):
     # preample
@@ -765,6 +765,13 @@ def __build_macro_set_preset_name(macro_call):
     return rc_commands
 
 
+def sendto_denon(commands):
+    if commands[0] == "macro":
+        commands = build_macro(commands[1:])
+
+    binary_commands = build_binary_commands_from_rc(commands)
+    send_serial_commands(binary_commands)
+
 if __name__ == "__main__":
     try:
         commands = sys.argv[1:]
@@ -774,13 +781,8 @@ if __name__ == "__main__":
         elif len(commands) == 0 or commands[0] == "help":
             print(__help())
         else:
-            if commands[0] == "macro":
-                commands = build_macro(commands[1:])
-
-            binary_commands = build_binary_commands_from_rc(commands)
-            send_serial_commands(binary_commands)
+            sendto_denon(commands)
 
     except HelpException as e:
         print e.message
         exit(1)
-
