@@ -1,3 +1,4 @@
+import os
 import sys
 import urlparse
 import xbmcgui
@@ -9,6 +10,7 @@ __PLUGIN_ID__ = "plugin.audio.denon-dra-f109-remote"
 
 settings = xbmcaddon.Addon(id=__PLUGIN_ID__);
 addon_handle = int(sys.argv[1])
+addon_dir = xbmc.translatePath( settings.getAddonInfo('path') )
 
 def __build_alarm():
 
@@ -37,6 +39,7 @@ def __build_alarm():
         {
             "path" : "off",
             "name" : "Off",
+            "icon" : "icon_alarm",
             "send" : ["alarm", "off"]
         }
     ]
@@ -48,6 +51,7 @@ def __build_alarm():
                 "name" : "Everyday from %s to %s play %s %s"
                         % (everyday_start, everyday_end,
                            sources[everyday_source], everyday_preset),
+                "icon" : "icon_alarm",
                 "send" : ["set-alarm", "everyday",
                     everyday_start,
                     everyday_end,
@@ -64,6 +68,7 @@ def __build_alarm():
                 "name" : "Once from %s to %s play %s %s"
                         % (once_start, once_end,
                            sources[once_source], once_preset),
+                "icon" : "icon_alarm",
                 "send" : ["set-alarm", "once",
                     once_start,
                     once_end,
@@ -87,6 +92,7 @@ def __build_alarm():
                            sources[everyday_source], everyday_preset,
                            once_start, once_end,
                            sources[once_source], once_preset),
+                "icon" : "icon_alarm",
                 "send" : ["set-alarm", "everyday",
                     everyday_start,
                     everyday_end,
@@ -114,6 +120,7 @@ def __build_presets():
             {
                 "path" : str(i),
                 "name" : settings.getSetting("preset_%s" % str(i)),
+                "icon" : "icon_%s" % (str(i % 10)),
                 "send" : ["macro", "preset", str(i)],
             }
         ]
@@ -125,6 +132,7 @@ def __build_sleep_timer():
         {
             "path" : "off",
             "name" : "Off",
+            "icon" : "icon_sleep",
             "send" : ["sleep", "0"]
         }
     ]
@@ -135,6 +143,7 @@ def __build_sleep_timer():
             {
                 "path" : str(i),
                 "name" : "%s minutes" % t,
+                "icon" : "icon_sleep",                
                 "send" : ["sleep", t]
             }
         ]
@@ -145,26 +154,35 @@ def __build_volume():
     entries = [
         {
             "path" : "off",
-            "name" : "Off",
+            "name" : "Mute On",
+            "icon" : "icon_mute",            
             "send" : ["mute", "on"]
         },
         {
             "path" : "on",
-            "name" : "On",
+            "name" : "Mute Off",
+            "icon" : "icon_mute_off",
             "send" : ["mute", "off"]
         }
     ]
 
-    _range = range(
-        int(settings.getSetting("vol_min")),
-        int(settings.getSetting("vol_max")) + 1,
-        int(settings.getSetting("vol_step")))
+
+    _min = int(settings.getSetting("vol_min"))
+    _max = int(settings.getSetting("vol_max")) + 1
+    _step = int(settings.getSetting("vol_step"))
+
+    icons = ["icon_zero", "icon_low", "icon_medium", "icon_full"]
+    icon_div = (_max - _min) / (1.0 * len(icons))
+
+    _range = range(_min, _max, _step)
 
     for i in _range:
+        
         entries += [
             {
                 "path" : str(i),
                 "name" : str(i),
+                "icon" : icons[int(((i - _min) / icon_div))],
                 "send" : ["vol", str(i)]
             }
         ]
@@ -178,11 +196,13 @@ __menu = [
             { # fm
                 "path" : "fm",
                 "name" : "FM Radio",
+                "icon" : "icon_radio",
                 "send" : ["fm"]
             },
             { # dab
                 "path" : "dab",
                 "name" : "DAB Radio",
+                "icon" : "icon_dab",
                 "send" : ["dab"]
             },
             { # presets
@@ -197,16 +217,19 @@ __menu = [
                     { # preset +
                         "path" : "preset_next",
                         "name" : "Preset +",
+                        "icon" : "icon_arrow_up",
                         "send" : ["preset", "%2B"]
                     },
                     { # preset -
                         "path" : "preset_prev",
                         "name" : "Preset -",
+                        "icon" : "icon_arrow_down",
                         "send" : ["preset", "-"]
                     },
                     { # mode
                         "path" : "mode",
                         "name" : "Stereo / Mono",
+                        "icon" : "icon_stereo",
                         "send" : ["mode"]
                     }
                 ]
@@ -214,56 +237,67 @@ __menu = [
             { # cd
                 "path" : "cd",
                 "name" : "CD",
+                "icon" : "icon_cd",
                 "send" : ["cd"]
             },
             { # net
                 "path" : "net",
                 "name" : "Network",
+                "icon" : "icon_net",
                 "send" : ["net"]
             },
             { # optical
                 "path" : "optical",
                 "name" : "Optical",
+                "icon" : "icon_digital",
                 "send" : ["optical"]
             },
             { # analog 1
                 "path" : "analog1",
                 "name" : "Analog 1",
+                "icon" : "icon_analog",
                 "send" : ["analog", "1"]
             },
             { # analog 2
                 "path" : "analog2",
                 "name" : "Analog 2",
+                "icon" : "icon_analog",
                 "send" : ["analog", "2"]
             },                  
             { # cda
                 "path" : "cda",
                 "name" : "CD Audio",
+                "icon" : "icon_cd",
                 "send" : ["cda"]
             },
             { # usb
                 "path" : "usb",
                 "name" : "USB",
+                "icon" : "icon_usb",
                 "send" : ["usb"]
             },                  
             { # internet
                 "path" : "internet",
                 "name" : "Internet radio",
+                "icon" : "icon_internet",
                 "send" : ["internet"]
             },
             { # online
                 "path" : "online",
                 "name" : "Online music",
+                "icon" : "icon_net",
                 "send" : ["online"]
             },
             { # server
                 "path" : "server",
                 "name" : "Music server",
+                "icon" : "icon_server",
                 "send" : ["server"]
             },
             { # ipod
                 "path" : "ipod",
                 "name" : "iPOD",
+                "icon" : "icon_usb",
                 "send" : ["ipod"]
             },                  
             { # power
@@ -273,11 +307,13 @@ __menu = [
                     { # off
                         "path" : "off",
                         "name" : "Power Off",
+                        "icon" : "icon_power",
                         "send" : ["off"]
                     },
                     { # on
                         "path" : "on",
                         "name" : "Power On",
+                        "icon" : "icon_power",
                         "send" : ["on"]
                     },
                     { # sleep
@@ -297,21 +333,25 @@ __menu = [
                             { # off
                                 "path" : "off",
                                 "name" : "Off",
+                                "icon" : "icon_zero",
                                 "send" : ["dimmer", "off"]
                             },
                             { # low
                                 "path" : "low",
                                 "name" : "Low",
+                                "icon" : "icon_low",
                                 "send" : ["dimmer", "low"]
                             },
                             { # normal
                                 "path" : "normal",
                                 "name" : "Normal",
+                                "icon" : "icon_medium",
                                 "send" : ["dimmer", "normal"]
                             },
                             { # high
                                 "path" : "high",
                                 "name" : "High",
+                                "icon" : "icon_full",
                                 "send" : ["dimmer", "high"]
                             }
                         ]
@@ -323,11 +363,13 @@ __menu = [
                             { # off
                                 "path" : "off",
                                 "name" : "Auto standby Off",
+                                "icon" : "icon_off",
                                 "send" : ["standby", "off"]
                             },
                             { # on
                                 "path" : "on",
                                 "name" : "Auto standby on",
+                                "icon" : "icon_on",
                                 "send" : ["standby", "on"]
                             }
                         ]
@@ -350,11 +392,13 @@ __menu = [
                             { # incr
                                 "path" : "incr",
                                 "name" : "Bass +",
+                                "icon" : "icon_sound_up",
                                 "send" : ["bass", "%2B"]
                             },
                             { # decr
                                 "path" : "decr",
                                 "name" : "Bass -",
+                                "icon" : "icon_sound_down",
                                 "send" : ["bass", "-"]
                             }
                         ]
@@ -366,11 +410,13 @@ __menu = [
                             { # incr
                                 "path" : "incr",
                                 "name" : "Treble +",
+                                "icon" : "icon_sound_up",
                                 "send" : ["treble", "%2B"]
                             },
                             { # decr
                                 "path" : "decr",
                                 "name" : "Treble -",
+                                "icon" : "icon_sound_down",
                                 "send" : ["treble", "-"]
                             }
                         ]
@@ -382,11 +428,13 @@ __menu = [
                             { # left
                                 "path"  : "left",
                                 "name" : "Balance left",
+                                "icon" : "icon_arrow_left",
                                 "send" : ["balance", "left"]
                             },
                             { # right
                                 "path" : "right",
                                 "name" : "Balance right",
+                                "icon" : "icon_arrow_right",
                                 "send" : ["balance", "right"]
                             }
                         ]
@@ -398,11 +446,13 @@ __menu = [
                             { # off
                                 "path" : "off",
                                 "name" : "S.Direct Off",
+                                "icon" : "icon_off",
                                 "send" : ["sdirect", "off"]
                             },
                             { # on
                                 "path" : "on",
                                 "name" : "S.Direct On",
+                                "icon" : "icon_on",
                                 "send" : ["sdirect", "on"]
                             }
                         ]
@@ -414,11 +464,13 @@ __menu = [
                             { # off
                                 "path" : "off",
                                 "name" : "SDB Off",
+                                "icon" : "icon_off",
                                 "send" : ["sdb", "off"]
                             },
                             { # on
                                 "path" : "on",
                                 "name" : "SDB On",
+                                "icon" : "icon_on",
                                 "send" : ["sdb", "on"]
                             }
                         ]
@@ -495,8 +547,13 @@ def __add_list_item(entry, path):
     label = entry["name"]
     if settings.getSetting("label%s" % item_id) != "":
         label = settings.getSetting("label%s" % item_id)
+    
+    if "icon" in entry:
+        icon_file = os.path.join(addon_dir, "resources", "assets", entry["icon"] + ".png")
+    else:
+        icon_file = None
 
-    li = xbmcgui.ListItem(label)
+    li = xbmcgui.ListItem(label, iconImage=icon_file)
 
     xbmcplugin.addDirectoryItem(handle=addon_handle,
                             listitem=li,

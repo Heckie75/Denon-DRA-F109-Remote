@@ -4,30 +4,31 @@
     <setting label="Serial device (TTY)" type="file" id="device" default="/dev/ttyUSB0" />
   </category>
   <category label="Input sources">
-  	<setting label="Radio sources" type="lsep" />
+    <setting label="Radio sources" type="lsep" />
     <setting label="FM Radio" type="bool" id="display_fm" default="true" />
     <setting label="DAB Radio" type="bool" id="display_dab" default="false" />
     <setting label="Radio presets" type="bool" id="display_presets" default="false" />
     <setting label="Tune" type="bool" id="display_preset" default="false" />
 
-	<setting label="Physical input connectors" type="lsep" />
+    <setting label="Physical input connectors" type="lsep" />
     <setting label="CD" type="bool" id="display_cd" default="true" />
     <setting label="Network" type="bool" id="display_net" default="true" />
     <setting label="Optical" type="bool" id="display_optical" default="true" />
     <setting label="Analog 1" type="bool" id="display_analog1" default="true" />
     <setting label="Analog 2" type="bool" id="display_analog2" default="true" />
 
-	<setting label="Denon DCD-F109 logical sources" type="lsep" />
+    <setting label="Denon DCD-F109 logical sources" type="lsep" />
     <setting label="CD Audio" type="bool" id="display_cda" default="false" />
     <setting label="iPOD/USB" type="bool" id="display_usb" default="false" />
 
-	<setting label="Denon DNP-F109 logical sources" type="lsep" />
+    <setting label="Denon DNP-F109 logical sources" type="lsep" />
     <setting label="Internet Radio" type="bool" id="display_internet" default="false" />
     <setting label="Online music" type="bool" id="display_online" default="false" />
     <setting label="Music server" type="bool" id="display_server" default="false" />
     <setting label="iPOD/USB" type="bool" id="display_ipod" default="false" />
   </category>
   <category label="Input labels">
+    <setting label="Physical input connectors" type="lsep" />
     <setting label="CD" type="text" id="label_cd" default="CD" />
     <setting label="Network" type="text" id="label_net" default="Network" />
     <setting label="Optical" type="text" id="label_optical" default="Optical" />
