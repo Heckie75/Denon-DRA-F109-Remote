@@ -231,7 +231,13 @@ __menu = [
                         "name" : "Stereo / Mono",
                         "icon" : "icon_stereo",
                         "send" : ["mode"]
-                    }
+                    },
+                    { # info
+                        "path" : "info",
+                        "name" : "Info",
+                        "icon" : "icon_info",
+                        "send" : ["info"]
+                    }                          
                 ]
             },
             { # cd
