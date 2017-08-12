@@ -395,6 +395,7 @@ KEY_PAD = [["0", " ", "^", "'", "(", ")", "*", "+", ",", "="],
            ["T", "U", "V", "8"],
            ["W", "X", "Y", "Z", "9"]]
 
+port = PORT
 ser = None
 
 def __build_help(cmd, header = False, msg = ""):
@@ -403,9 +404,9 @@ def __build_help(cmd, header = False, msg = ""):
 
     if header == True:
         s = """ Denon DRA-F109 command line remote control \
- for Linux / Raspberry Pi via Serial Port, e.g. RS-232 / PL2303
+ for Linux / Raspberry Pi via serial port
 
- USAGE:   denon.py <command1> <params1> <command2> <command2> ...
+ USAGE:   denon.py [/dev/ttyUSB0] <command1> <params1> <command2> ...
  EXAMPLE: Set FM radio as input source, select preset 24
           and set volume to 12
           $ ./denon.py fm num +10 num +10 num 4 vol 12
@@ -580,28 +581,29 @@ def send_serial_commands(commands):
 
 def __init_serial():
     global ser
-
     dev = None
-    c = 0
-    for p in list(serial.tools.list_ports.comports()):
-        c += 1
-        dev = p.device
-        print(" INFO: Serial device found <" + p.device + ">")
-
-    if dev == None:
-        raise HelpException(" FATAL: No serial device found!")
-
-    elif c > 1 and PORT == None:
-        raise HelpException("""
+    
+    if port == None:    
+        c = 0
+        for p in list(serial.tools.list_ports.comports()):
+            c += 1
+            dev = p.device
+            print(" INFO: Serial device found <" + p.device + ">")
+    
+        if dev == None:
+            raise HelpException(" FATAL: No serial device found!")
+    
+        elif c > 1:
+            raise HelpException("""
  FATAL: Found more than one serial device
- Please specify serial device by setting PORT variable inside
- program code, e.g. PORT = "/dev/ttyUSB0"
-            """)
-
-    elif c > 1:
-        print(" INFO: Found more than one serial device. "
-              + "Force to <" + PORT + ">")
-        dev = PORT
+ Please force serial device by (a) passing it as parameter, e.g.
+ $ denon.sh /dev/ttyUSB0 ...
+ or (b) by settings PORT constant inside program code, e.g. 
+ PORT = "/dev/ttyUSB0"
+                """)
+    else:
+        print(" INFO: Force serial device to <" + port + ">")
+        dev = port
 
     ser = serial.Serial(dev, 115200, serial.EIGHTBITS,
                         serial.PARITY_NONE, serial.STOPBITS_ONE, 1)
@@ -775,6 +777,9 @@ def sendto_denon(commands):
 if __name__ == "__main__":
     try:
         commands = sys.argv[1:]
+        
+        if len(commands) > 0 and commands[0].startswith("/dev/tty"):
+            port = commands.pop(0)
 
         if len(commands) == 2 and commands[0] == "help" and commands[1] in COMMANDS:
             print(__build_help(COMMANDS[commands[1]]))

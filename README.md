@@ -15,7 +15,7 @@ I have taken all information about the Denon protocol from
 $ ./denon.py 
  Denon DRA-F109 command line remote control  for Linux / Raspberry Pi via Serial Port, e.g. RS-232 / PL2303
  
- USAGE:   denon.py <command1> <params1> <command2> <command2> ...
+ USAGE:   denon.py [/dev/ttyUSB0] <command1> <params1> <command2> ...
  EXAMPLE: Set FM radio as input source, select preset 24
           and set volume to 12
           $ ./denon.py fm num +10 num +10 num 4 vol 12
