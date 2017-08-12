@@ -768,6 +768,12 @@ def __build_macro_set_preset_name(macro_call):
 
 
 def sendto_denon(commands):
+    
+    global port
+    
+    if len(commands) > 0 and commands[0].startswith("/dev/tty"):
+        port = commands.pop(0)
+    
     if commands[0] == "macro":
         commands = build_macro(commands[1:])
 
@@ -777,10 +783,6 @@ def sendto_denon(commands):
 if __name__ == "__main__":
     try:
         commands = sys.argv[1:]
-        
-        if len(commands) > 0 and commands[0].startswith("/dev/tty"):
-            port = commands.pop(0)
-
         if len(commands) == 2 and commands[0] == "help" and commands[1] in COMMANDS:
             print(__build_help(COMMANDS[commands[1]]))
         elif len(commands) == 0 or commands[0] == "help":
