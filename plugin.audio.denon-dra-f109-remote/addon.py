@@ -108,6 +108,19 @@ def __build_alarm():
 
     return entries
 
+def __send_kodi():
+
+    sources = [["analog", "1"],
+               ["analog", "2"],
+               ["optical"], 
+               ["cd"],
+               ["net"]]
+
+    kodi_input_source = int(settings.getSetting("kodi_input_source"))
+
+    return sources[kodi_input_source]
+
+
 def __build_presets():
 
     entries = []
@@ -193,6 +206,12 @@ __menu = [
     { # root
         "path" : "",
         "node" : [
+            { # kodi
+                "path" : "kodi",
+                "name" : "KODI",
+                "icon" : "icon_kodi",
+                "send" : __send_kodi()
+            },
             { # fm
                 "path" : "fm",
                 "name" : "FM Radio",
@@ -305,23 +324,17 @@ __menu = [
                 "name" : "iPOD",
                 "icon" : "icon_usb",
                 "send" : ["ipod"]
-            },                  
+            },
+            { # power off
+                "path" : "off",
+                "name" : "Power off",
+                "icon" : "icon_power",
+                "send" : ["off"]
+            },
             { # power
                 "path" : "power",
-                "name" : "Power / timers",
+                "name" : "Timers",
                 "node" : [
-                    { # off
-                        "path" : "off",
-                        "name" : "Power Off",
-                        "icon" : "icon_power",
-                        "send" : ["off"]
-                    },
-                    { # on
-                        "path" : "on",
-                        "name" : "Power On",
-                        "icon" : "icon_power",
-                        "send" : ["on"]
-                    },
                     { # sleep
                         "path" : "sleep",
                         "name" : "Sleep timer",
@@ -362,23 +375,11 @@ __menu = [
                             }
                         ]
                     },
-                    { # standby
-                        "path" : "standby",
-                        "name" : "Auto standby",
-                        "node" : [
-                            { # off
-                                "path" : "off",
-                                "name" : "Auto standby Off",
-                                "icon" : "icon_off",
-                                "send" : ["standby", "off"]
-                            },
-                            { # on
-                                "path" : "on",
-                                "name" : "Auto standby on",
-                                "icon" : "icon_on",
-                                "send" : ["standby", "on"]
-                            }
-                        ]
+                    { # power off
+                        "path" : "off",
+                        "name" : "Power off",
+                        "icon" : "icon_power",
+                        "send" : ["off"]
                     }
                 ]
             },

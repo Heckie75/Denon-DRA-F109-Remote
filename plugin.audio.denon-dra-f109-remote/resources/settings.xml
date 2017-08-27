@@ -4,6 +4,10 @@
     <setting label="Serial device (TTY)" type="file" id="device" default="/dev/ttyUSB0" />
   </category>
   <category label="Input sources">
+    <setting label="Kodi" type="lsep" />
+    <setting label="Kodi" type="bool" id="display_kodi" default="true" />
+    <setting label="Kodi's input source" type="enum" id="kodi_input_source" values="Analog 1|Analog 2|Optical|CD|Network" default="0" />
+    <setting label="Auto switch" type="bool" id="auto_kodi" default="true" />
     <setting label="Radio sources" type="lsep" />
     <setting label="FM Radio" type="bool" id="display_fm" default="true" />
     <setting label="DAB Radio" type="bool" id="display_dab" default="false" />
@@ -26,6 +30,8 @@
     <setting label="Online music" type="bool" id="display_online" default="false" />
     <setting label="Music server" type="bool" id="display_server" default="false" />
     <setting label="iPOD/USB" type="bool" id="display_ipod" default="false" />
+    <setting label="Power off" type="lsep" />    
+    <setting label="Power off" type="bool" id="display_poweroff" default="false" />
   </category>
   <category label="Input labels">
     <setting label="Physical input connectors" type="lsep" />
@@ -105,12 +111,4 @@
     <setting visible="!eq(-15,False)" label="Alarm input source" type="enum" id="alarm_once_source" values="preset|optical|cd|cdusb|net|netusb|analog1|analog2" default="0" />
     <setting visible="!eq(-16,False)" enable="eq(-1,0)" label="Alarm input radio preset" type="slider" id="alarm_once_preset" default="1" range="1,1,40" option="int" />
   </category>
-<!--
-  <category label="Smart switch">  
-    <setting label="Auto switch on playback in Kodi" type="bool" id="auto_switch" default="false" />
-    <setting visible="eq(-1,True)" label="Kodi's input source" type="enum" id="kodi_input_source" values="Analog 1|Analog 2|Optical|CD|Network" default="0" />
-    <setting visible="eq(-3,True)" label="Auto sleep timer" type="bool" id="kodi_sleep" default="false" />
-    <setting visible="eq(-2,True)" label="Auto s.direct" type="bool" id="kodi_sdirect" default="false" />
-  </category>
--->  
 </settings>
