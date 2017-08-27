@@ -76,15 +76,6 @@
     <setting label="Preset 38" type="text" id="preset_38" default="" />
     <setting label="Preset 39" type="text" id="preset_39" default="" />
     <setting label="Preset 40" type="text" id="preset_40" default="" />
-    <setting label="Preset 41" type="text" id="preset_41" default="" />
-    <setting label="Preset 42" type="text" id="preset_42" default="" />
-    <setting label="Preset 43" type="text" id="preset_43" default="" />
-    <setting label="Preset 44" type="text" id="preset_44" default="" />
-    <setting label="Preset 45" type="text" id="preset_45" default="" />
-    <setting label="Preset 46" type="text" id="preset_46" default="" />
-    <setting label="Preset 47" type="text" id="preset_47" default="" />
-    <setting label="Preset 48" type="text" id="preset_48" default="" />
-    <setting label="Preset 49" type="text" id="preset_49" default="" />
   </category>
   <category label="Sound controls">
     <setting label="Display sound settings" type="bool" id="display_sound" default="true" />
@@ -96,22 +87,31 @@
   <category label="Timers">
     <setting label="Display power / timers" type="bool" id="display_power" default="true" />
     <setting visible="!eq(-1,False)" label="Sleep timer" type="lsep" />
-    <setting visible="!eq(-2,False)" label="Preset 1" type="slider" id="sleep_preset_1" default="5" range="1,1,90" option="int" />
-    <setting visible="!eq(-3,False)" label="Preset 2" type="slider" id="sleep_preset_2" default="15" range="1,1,90" option="int" />
-    <setting visible="!eq(-4,False)" label="Preset 3" type="slider" id="sleep_preset_3" default="30" range="1,1,90" option="int" />
-    <setting visible="!eq(-5,False)" label="Preset 4" type="slider" id="sleep_preset_4" default="60" range="1,1,90" option="int" />
-    <setting visible="!eq(-6,False)" label="Preset 5" type="slider" id="sleep_preset_5" default="90" range="1,1,90" option="int" />
+    <setting visible="!eq(-2,False)" label="Preset 1" type="slider" id="sleep_preset_1" default="5" range="1,1,99" option="int" />
+    <setting visible="!eq(-3,False)" label="Preset 2" type="slider" id="sleep_preset_2" default="15" range="1,1,99" option="int" />
+    <setting visible="!eq(-4,False)" label="Preset 3" type="slider" id="sleep_preset_3" default="30" range="1,1,99" option="int" />
+    <setting visible="!eq(-5,False)" label="Preset 4" type="slider" id="sleep_preset_4" default="60" range="1,1,99" option="int" />
+    <setting visible="!eq(-6,False)" label="Preset 5" type="slider" id="sleep_preset_5" default="90" range="1,1,99" option="int" />
 
     <setting visible="!eq(-7,False)" label="Everyday alarm settings" type="lsep" />
     <setting visible="!eq(-8,False)" label="Alarm start" type="time" id="alarm_everyday_start" />
     <setting visible="!eq(-9,False)" label="Alarm end" type="time" id="alarm_everyday_end" />
     <setting visible="!eq(-10,False)" label="Alarm input source" type="enum" id="alarm_everyday_source" values="preset|optical|cd|cdusb|net|netusb|analog1|analog2" default="0" />
-    <setting visible="!eq(-11,False)" enable="eq(-1,0)" label="Alarm input radio preset" type="slider" id="alarm_everyday_preset" default="1" range="1,1,49" option="int" />
+    <setting visible="!eq(-11,False)" enable="eq(-1,0)" label="Alarm input radio preset" type="slider" id="alarm_everyday_preset" default="1" range="1,1,40" option="int" />
 
     <setting visible="!eq(-12,False)" label="Onetime alarm settings" type="lsep" />
     <setting visible="!eq(-13,False)" label="Alarm start" type="time" id="alarm_once_start" />
     <setting visible="!eq(-14,False)" label="Alarm end" type="time" id="alarm_once_end" />
     <setting visible="!eq(-15,False)" label="Alarm input source" type="enum" id="alarm_once_source" values="preset|optical|cd|cdusb|net|netusb|analog1|analog2" default="0" />
-    <setting visible="!eq(-16,False)" enable="eq(-1,0)" label="Alarm input radio preset" type="slider" id="alarm_once_preset" default="1" range="1,1,49" option="int" />
+    <setting visible="!eq(-16,False)" enable="eq(-1,0)" label="Alarm input radio preset" type="slider" id="alarm_once_preset" default="1" range="1,1,40" option="int" />
   </category>
+<!--
+  <category label="Smart switch">  
+    <setting label="Auto switch on playback in Kodi" type="bool" id="auto_switch" default="false" />
+    <setting visible="eq(-1,True)" label="Kodi's input source" type="enum" id="kodi_input_source" values="Analog 1|Analog 2|Optical|CD|Network" default="0" />
+    <setting visible="eq(-3,True)" label="Auto sleep timer" type="bool" id="kodi_sleep" default="false" />
+    <setting visible="eq(-2,True)" label="Auto s.direct" type="bool" id="kodi_sdirect" default="false" />
+-->
+  </category>
+  
 </settings>

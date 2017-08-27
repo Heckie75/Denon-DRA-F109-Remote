@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.service.denon-dra-f109-remote" name="Denon DRA-F109 Remote" version="0.0.1"
+	provider-name="Heckie">
+	<requires>
+		<import addon="xbmc.python" version="2.25.0" />
+	</requires>
+	<extension point="xbmc.service" library="service.py" start="login" />
+	<extension point="xbmc.addon.metadata">
+		<summary lang="en_gb">Addon for controlling Denon DRA-F109 directly in
+			Kodi</summary>
+		<description lang="en_gb">Addon for controlling Denon DRA-F109
+			directly in Kodi</description>
+		<disclaimer lang="en_gb"></disclaimer>
+		<language></language>
+		<platform>linux</platform>
+		<license></license>
+		<forum></forum>
+		<website></website>
+		<email></email>
+		<source></source>
+		<news>v0.0.1 (2017-08-06)
+		- development starts
+		</news>
+	</extension>
+</addon>
