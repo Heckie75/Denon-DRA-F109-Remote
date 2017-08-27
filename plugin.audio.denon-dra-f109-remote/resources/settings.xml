@@ -111,7 +111,6 @@
     <setting visible="eq(-1,True)" label="Kodi's input source" type="enum" id="kodi_input_source" values="Analog 1|Analog 2|Optical|CD|Network" default="0" />
     <setting visible="eq(-3,True)" label="Auto sleep timer" type="bool" id="kodi_sleep" default="false" />
     <setting visible="eq(-2,True)" label="Auto s.direct" type="bool" id="kodi_sdirect" default="false" />
--->
   </category>
-  
+-->  
 </settings>
