@@ -342,7 +342,7 @@ $ ./denon.py standby on dimmer off
 ```
 
 ### Kodi
-The code described here is the base for my Kodi plugin that allows you to remote-control the Denon receiver directly in Kodi. See [kodi-addon-denon-dra-f109-remote](/Heckie75/kodi-addon-denon-dra-f109-remote)
+The code described here is the base for my Kodi plugin that allows you to remote-control the Denon receiver directly in Kodi. See [kodi-addon-denon-dra-f109-remote](https://github.com/Heckie75/kodi-addon-denon-dra-f109-remote)
 
 
 ### Ask for help
