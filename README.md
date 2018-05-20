@@ -74,7 +74,7 @@ $ ./denon.py
  treble <+|->                    	Increases / decreases treble level
  up                              	Moves in current menu up
  usb                             	Sets input source to CD and selects USB
- volume <0-60>                   	Sets volume to value whish is between 0 and 60
+ vol <0-60>                   	    Sets volume to value whish is between 0 and 60
 
 ```
 
@@ -146,7 +146,7 @@ $ ./denon.py vol 8
  DONE: <vol 8>
  
 $ ./denon.py vol
-  volume <0-60>           	Sets volume to value whish is between 0 and 60
+  vol <0-60>               	Sets volume to value whish is between 0 and 60
   
 $ ./denon.py mute on
  INFO: Serial device found </dev/ttyUSB0>

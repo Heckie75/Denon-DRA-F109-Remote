@@ -112,7 +112,7 @@ COMMANDS = {
          __STATS : "\x33\x00\x00"
          },
      "vol" : {
-         __USAGE : "volume <0-60>",
+         __USAGE : "vol <0-60>",
          __DESCR : "Sets volume to value whish is between 0 and 60",
          __STATS : "\x40\x00%s",
          __PARAMS : [range(0x3c)]
