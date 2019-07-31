@@ -23,9 +23,18 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
+
+
+
 class HelpException(Exception):
+
     def __init__(self, message):
+
         self.message = message
+
+
+
 
 import serial.tools.list_ports
 import sys
@@ -398,6 +407,9 @@ KEY_PAD = [["0", " ", "^", "'", "(", ")", "*", "+", ",", "="],
 port = PORT
 ser = None
 
+
+
+
 def __build_help(cmd, header = False, msg = ""):
 
     s = ""
@@ -422,6 +434,9 @@ def __build_help(cmd, header = False, msg = ""):
 
     return s
 
+
+
+
 def __help():
 
     s = ""
@@ -431,6 +446,9 @@ def __help():
         i += 1
 
     return s
+
+
+
 
 def build_binary_commands_from_rc(rc_commands):
 
@@ -493,13 +511,20 @@ def build_binary_commands_from_rc(rc_commands):
 
     return binary_commands
 
+
+
+
 def __interprete_command(cli_cmd):
+
     if cli_cmd not in COMMANDS:
         raise HelpException(__help()
                         + "\n\n ERROR: Invalid command <"
                         + cli_cmd + ">\n")
 
     return COMMANDS[cli_cmd]
+
+
+
 
 def __interprete_param_array(cmd_def, cli_arg, cmd_param_def):
 
@@ -512,6 +537,9 @@ def __interprete_param_array(cmd_def, cli_arg, cmd_param_def):
     # return int value of cli_arg as char
     return chr(int(cli_arg))
 
+
+
+
 def __interprete_param_dict(cmd_def, cli_arg, cmd_param_def):
 
     # check if cli_arg is in list of allowed dict values
@@ -522,6 +550,9 @@ def __interprete_param_dict(cmd_def, cli_arg, cmd_param_def):
 
     # lookup dict value and return char sequence
     return cmd_param_def[cli_arg]
+
+
+
 
 def __interprete_param_regex(cmd_def, cli_arg, cmd_param_def, parser):
 
@@ -542,6 +573,9 @@ def __interprete_param_regex(cmd_def, cli_arg, cmd_param_def, parser):
 
     return s
 
+
+
+
 def __parse(matcher, instruc):
 
     s = ""
@@ -555,6 +589,9 @@ def __parse(matcher, instruc):
             s += chr(i)
 
     return s
+
+
+
 
 def send_serial_commands(commands):
 
@@ -579,42 +616,58 @@ def send_serial_commands(commands):
     finally:
         __close_serial()
 
+
+
+
 def __init_serial():
+
     global ser
     dev = None
-    
-    if port == None:    
+    if port == None:
         c = 0
         for p in list(serial.tools.list_ports.comports()):
             c += 1
             dev = p.device
             print(" INFO: Serial device found <" + p.device + ">")
-    
+
         if dev == None:
             raise HelpException(" FATAL: No serial device found!")
-    
+
         elif c > 1:
             raise HelpException("""
  FATAL: Found more than one serial device
  Please force serial device by (a) passing it as parameter, e.g.
  $ denon.sh /dev/ttyUSB0 ...
- or (b) by settings PORT constant inside program code, e.g. 
+ or (b) by settings PORT constant inside program code, e.g.
  PORT = "/dev/ttyUSB0"
                 """)
     else:
         print(" INFO: Force serial device to <" + port + ">")
         dev = port
 
-    ser = serial.Serial(dev, 115200, serial.EIGHTBITS,
-                        serial.PARITY_NONE, serial.STOPBITS_ONE, 1)
+    ser = serial.Serial(dev, baudrate=115200, 
+                        bytesize=serial.EIGHTBITS,
+                        parity=serial.PARITY_NONE, 
+                        stopbits=serial.STOPBITS_ONE, 
+                        timeout=1, 
+                        rtscts=True, 
+                        dsrdtr=True)
+
+
+
 
 def __close_serial():
+
     global ser
-    
+
     if ser != None:
         ser.close()
 
+
+
+
 def __build_package(data):
+
     # preample
     package = "\xFF\x55"
 
@@ -638,11 +691,18 @@ def __build_package(data):
 
     return package
 
+
+
+
 def __send_package(package):
+
     global ser
     ser.sendBreak()
     ser.write(package)
     ser.flush()
+
+
+
 
 def __number_to_rc_commands(no):
 
@@ -658,6 +718,9 @@ def __number_to_rc_commands(no):
             break
 
     return rc_commands
+
+
+
 
 def build_macro(macro_call):
 
@@ -679,6 +742,9 @@ def build_macro(macro_call):
         raise HelpException(" ERROR: Macro <" + macro_cmd + "> unknown.")
 
     return rc_commands
+
+
+
 
 def __build_macro_delete_presets(macro_call):
 
@@ -704,6 +770,9 @@ def __build_macro_delete_presets(macro_call):
 
     return rc_commands
 
+
+
+
 def __build_macro_preset(macro_call):
 
     # validate parameters
@@ -722,6 +791,9 @@ def __build_macro_preset(macro_call):
     rc_commands += __number_to_rc_commands(preset)
 
     return rc_commands
+
+
+
 
 def __build_macro_set_preset_name(macro_call):
 
@@ -767,20 +839,26 @@ def __build_macro_set_preset_name(macro_call):
     return rc_commands
 
 
+
+
 def sendto_denon(commands):
-    
+
     global port
-    
+
     if len(commands) > 0 and commands[0].startswith("/dev/tty"):
         port = commands.pop(0)
-    
+
     if commands[0] == "macro":
         commands = build_macro(commands[1:])
 
     binary_commands = build_binary_commands_from_rc(commands)
     send_serial_commands(binary_commands)
 
+
+
+
 if __name__ == "__main__":
+
     try:
         commands = sys.argv[1:]
         if len(commands) == 2 and commands[0] == "help" and commands[1] in COMMANDS:
