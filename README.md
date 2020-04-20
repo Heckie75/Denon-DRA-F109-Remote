@@ -7,7 +7,7 @@ This CLI script requires Python and [PySerial](https://pythonhosted.org/pyserial
 
 PySerial acn be installed like this:
 ```
-apt install python-serial
+apt install python3-serial
 ```
 
 Instead of a Raspberry PI I use an Intel NUC N2820 in combination with an USB -> TTL RS232 5V PL2303 HX Adapter. Sending commands works well. Nevertheless, so far I was not able to read information from the Denon receiver - or haven't understood what I got there but it looks like data garbage. I expect that this is because of the low quality of the TTL RS232 adapter. The one that I've bought at Ebay's is unfortunately a fake adapter (see also [here](http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=155&pcid=41)) but it works under Linux (and also under Windows 10 by using an out-dated driver)   
